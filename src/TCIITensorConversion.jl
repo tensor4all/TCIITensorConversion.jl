@@ -5,5 +5,6 @@ using ITensors
 import ITensors: MPS
 
 include("ttmpsconversion.jl")
+include("mpsutil.jl")
 
 end
