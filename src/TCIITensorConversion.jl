@@ -1,8 +1,7 @@
 module TCIITensorConversion
 
-import TensorCrossInterpolation
+import TensorCrossInterpolation as TCI
 using ITensors
-import ITensors: MPS
 
 export MPS
 export evaluate_mps

@@ -1,4 +1,5 @@
 using ITensors
+import TensorCrossInterpolation as TCI
 using TCIITensorConversion
 using Test
 

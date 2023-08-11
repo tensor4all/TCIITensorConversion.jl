@@ -4,38 +4,50 @@
 
 Convert a tensor train to an ITensor MPS
 
- * `tt`            Tensor train as an array of tensors
+ * `tt`            Tensor train
  * `siteindices`   Arrays of ITensor Index objects.
- * `cutends`       Whether to remove the bond dimension 1 links at each end of the MPS.
 
- If `siteindices` is left empty, a default set of indices all named "site" will be used.
+ If `siteindices` is left empty, a default set of indices will be used.
 """
-function MPS(
-    tt::Vector{Array{V, 3}},
-    siteindices::Vector{ITensors.Index}=ITensors.Index[];
-    cutends=false
-) where V
-    n = length(tt)
+function ITensors.MPS(tt::TCI.TensorTrain{T}; sites=nothing)::MPS where {T}
+    N = length(tt)
+    localdims = [size(t, 2) for t in tt]
 
-    if isempty(siteindices)
-        siteindices = [Index(size(t, 2), "site") for t in tt]
+    if sites === nothing
+        sites = [Index(localdims[n], "n=$n") for n in 1:N]
+    else
+        all(localdims .== dim.(sites)) ||
+            error("ranks are not consistent with dimension of sites")
     end
 
-    ttmps = ITensors.MPS(n)
-    links =
-        [
-            Index(1, "link"),
-            [Index(size(t, 3), "link") for t in tt]...
-        ]
+    linkdims = [[size(t, 1) for t in tt]..., 1]
+    links = [Index(linkdims[l + 1], "link,l=$l") for l in 0:N]
 
-    for i in 1:n
-        ttmps[i] = ITensor(
-            tt[i],
-            links[i],
-            siteindices[i],
-            links[i+1]
+    tensors_ = [ITensor(deepcopy(tt[n]), links[n], sites[n], links[n + 1])
+                for n in 1:N]
+    tensors_[1] *= onehot(links[1] => 1)
+    tensors_[end] *= onehot(links[end] => 1)
+
+    return MPS(tensors_)
+end
+
+function ITensors.MPS(tci::TCI.AbstractTensorTrain{T}; sites=nothing)::MPS where {T}
+    MPS(TCI.tensortrain(tci), sites=sites)
+end
+
+
+function TCI.TensorTrain(mps::ITensors.MPS)
+    links = linkinds(mps)
+    sites = siteinds(mps)
+    Tfirst = zeros(ComplexF64, 1, dim(sites[1]), dim(links[1]))
+    Tfirst[1, :, :] = Array(mps[1], sites[1], links[1])
+    Tlast =  zeros(ComplexF64, dim(links[end]), dim(sites[end]), 1)
+    Tlast[:, :, 1] = Array(mps[end], links[end], sites[end])
+    return TCI.TensorTrain{ComplexF64,3}(
+        vcat(
+            [Tfirst],
+            [Array(mps[i], links[i-1], sites[i], links[i]) for i in 2:length(mps)-1],
+            [Tlast]
         )
-    end
-
-    return ttmps
+    )
 end
