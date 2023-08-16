@@ -35,7 +35,11 @@ function ITensors.MPS(tci::TCI.AbstractTensorTrain{T}; sites=nothing)::MPS where
     MPS(TCI.tensortrain(tci), sites=sites)
 end
 
+"""
+    function TCI.TensorTrain(mps::ITensors.MPS)
 
+Converts an ITensor MPS object into a TensorTrain. Note that this only works if the MPS has a single leg per site! Otherwise, use [`TCI.TensorTrain(mps::ITensors.MPO)`](@ref).
+"""
 function TCI.TensorTrain(mps::ITensors.MPS)
     links = linkinds(mps)
     sites = siteinds(mps)
@@ -48,6 +52,30 @@ function TCI.TensorTrain(mps::ITensors.MPS)
             [Tfirst],
             [Array(mps[i], links[i-1], sites[i], links[i]) for i in 2:length(mps)-1],
             [Tlast]
+        )
+    )
+end
+
+"""
+    function TCI.TensorTrain(mps::ITensors.MPO)
+
+Convertes an ITensor MPO object into a TensorTrain.
+"""
+function TCI.TensorTrain{V, N}(mps::ITensors.MPO) where {N, V}
+    links = linkinds(mps)
+    sites = siteinds(mps)
+
+    Tfirst = zeros(ComplexF64, 1, dim.(sites[1])..., dim(links[1]))
+    Tfirst[1, fill(Colon(), length(sites[1]) + 1)...] = Array(mps[1], sites[1]..., links[1])
+
+    Tlast =  zeros(ComplexF64, dim(links[end]), dim.(sites[end])..., 1)
+    Tlast[fill(Colon(), length(sites[end]) + 1)..., 1] = Array(mps[end], links[end], sites[end]...)
+
+    return TCI.TensorTrain{V, N}(
+        vcat(
+            Array{V, N}[Tfirst],
+            Array{V, N}[Array(mps[i], links[i-1], sites[i]..., links[i]) for i in 2:length(mps)-1],
+            Array{V, N}[Tlast]
         )
     )
 end
