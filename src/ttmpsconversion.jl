@@ -20,11 +20,10 @@ function ITensors.MPS(tt::TCI.TensorTrain{T}; sites=nothing)::MPS where {T}
             error("ranks are not consistent with dimension of sites")
     end
 
-    linkdims = [[size(t, 1) for t in tt]..., 1]
+    linkdims = [1, TCI.linkdims(tt)..., 1]
     links = [Index(linkdims[l + 1], "link,l=$l") for l in 0:N]
 
-    tensors_ = [ITensor(deepcopy(tt[n]), links[n], sites[n], links[n + 1])
-                for n in 1:N]
+    tensors_ = [ITensor(deepcopy(tt[n]), links[n], sites[n], links[n + 1]) for n in 1:N]
     tensors_[1] *= onehot(links[1] => 1)
     tensors_[end] *= onehot(links[end] => 1)
 
@@ -32,8 +31,39 @@ function ITensors.MPS(tt::TCI.TensorTrain{T}; sites=nothing)::MPS where {T}
 end
 
 function ITensors.MPS(tci::TCI.AbstractTensorTrain{T}; sites=nothing)::MPS where {T}
-    MPS(TCI.tensortrain(tci), sites=sites)
+    return MPS(TCI.tensortrain(tci), sites=sites)
 end
+
+function ITensors.MPO(tt::TCI.TensorTrain{T}; sites=nothing)::MPO where {T}
+    N = length(tt)
+    localdims = TCI.sitedims(tt)
+
+    if sites === nothing
+        sites = [
+            [Index(legdim, "ell=$ell, n=$n") for (n, legdim) in enumerate(ld)]
+            for (ell, ld) in enumerate(localdims)
+        ]
+    elseif !all(all.(
+            localdimell .== dim.(siteell)
+            for (localdimell, siteell) in zip(localdims, sites)
+        ))
+        error("ranks are not consistent with dimension of sites")
+    end
+
+    linkdims = [1, TCI.linkdims(tt)..., 1]
+    links = [Index(linkdims[l + 1], "link,l=$l") for l in 0:N]
+
+    tensors_ = [ITensor(deepcopy(tt[n]), links[n], sites[n]..., links[n + 1]) for n in 1:N]
+    tensors_[1] *= onehot(links[1] => 1)
+    tensors_[end] *= onehot(links[end] => 1)
+
+    return MPO(tensors_)
+end
+
+function ITensors.MPO(tci::TCI.AbstractTensorTrain{T}; sites=nothing)::MPO where {T}
+    return MPO(TCI.tensortrain(tci), sites=sites)
+end
+
 
 """
     function TCI.TensorTrain(mps::ITensors.MPS)
