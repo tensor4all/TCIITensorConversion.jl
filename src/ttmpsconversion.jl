@@ -91,20 +91,24 @@ end
 
 Convertes an ITensor MPO object into a TensorTrain.
 """
-function TCI.TensorTrain{V, N}(mps::ITensors.MPO) where {N, V}
-    links = linkinds(mps)
-    sites = siteinds(mps)
+function TCI.TensorTrain{V, N}(mpo::ITensors.MPO; sites=nothing) where {N, V}
+    links = linkinds(mpo)
+    if sites === nothing
+        sites = siteinds(mpo)
+    elseif !all(issetequal.(siteinds(mpo), sites))
+        error("Site indices do not correspond to the site indices of the MPO.")
+    end
 
     Tfirst = zeros(ComplexF64, 1, dim.(sites[1])..., dim(links[1]))
-    Tfirst[1, fill(Colon(), length(sites[1]) + 1)...] = Array(mps[1], sites[1]..., links[1])
+    Tfirst[1, fill(Colon(), length(sites[1]) + 1)...] = Array(mpo[1], sites[1]..., links[1])
 
     Tlast =  zeros(ComplexF64, dim(links[end]), dim.(sites[end])..., 1)
-    Tlast[fill(Colon(), length(sites[end]) + 1)..., 1] = Array(mps[end], links[end], sites[end]...)
+    Tlast[fill(Colon(), length(sites[end]) + 1)..., 1] = Array(mpo[end], links[end], sites[end]...)
 
     return TCI.TensorTrain{V, N}(
         vcat(
             Array{V, N}[Tfirst],
-            Array{V, N}[Array(mps[i], links[i-1], sites[i]..., links[i]) for i in 2:length(mps)-1],
+            Array{V, N}[Array(mpo[i], links[i-1], sites[i]..., links[i]) for i in 2:length(mpo)-1],
             Array{V, N}[Tlast]
         )
     )
