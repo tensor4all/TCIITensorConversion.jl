@@ -17,5 +17,9 @@
 
         tt2 = TCI.TensorTrain{Float64, 4}(mpo)
         @test all(tt2.T .== tt.T)
+
+        sites = reverse.(siteinds(mpo))
+        ttreverse = TCI.TensorTrain{Float64, 4}(mpo, sites=sites)
+        @test all(permutedims.(ttreverse.T, Ref([1, 3, 2, 4])) .== tt.T)
     end
 end
