@@ -41,8 +41,8 @@ before_script:
         Pkg.develop(PackageSpec(path=pwd()))
         Pkg.instantiate()
         using Documenter: doctest
-        using Hello
-        doctest(Hello)
+        using TCIITensorConversion
+        doctest(TCIITensorConversion)
         include("docs/make.jl")'
 Julia 1.9:
   image: julia:1.9
