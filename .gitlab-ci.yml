@@ -40,6 +40,7 @@ Julia 1.9:
       - "README.md"
 
 doctest:
+  image: julia:1.6
   script:
     - |
       julia --project=docs -e '
@@ -53,9 +54,9 @@ doctest:
 
 mydebugjob:
   image: julia:1.6
-  # stage: deploy
+  stage: test
   script:
-    - !refernce [.doctest, script]
+    - !refernce [doctest, script]
     - mkdir -p public
     - mv docs/build public/dev
   artifacts:
