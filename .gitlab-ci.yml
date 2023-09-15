@@ -39,8 +39,7 @@ Julia 1.9:
     changes:
       - "README.md"
 
-doctest:
-  image: julia:1.6
+.doctest:
   script:
     - |
       julia --project=docs -e '
@@ -51,12 +50,18 @@ doctest:
         using TCIITensorConversion
         doctest(TCIITensorConversion)
         include("docs/make.jl")'
+doctest:
+  image: julia:1.6
+  extends:
+    - .doctest
 
 mydebugjob:
   image: julia:1.6
+  #stage: deploy
   stage: test
-  script:
-    - !refernce [doctest, script]
+  extends:
+    - .doctest
+  after_script:
     - mkdir -p public
     - mv docs/build public/dev
   #artifacts:
