@@ -21,7 +21,18 @@
   before_script:
     - !reference [.add_julia_registry, before_script]
   script:
-    - !reference [.add_julia_registry, script]
+    - |
+      julia -e '
+      using Pkg
+      Pkg.Registry.add(
+        RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
+      )'
+    - |
+      julia -e '
+      using Pkg
+      Pkg.Registry.add(
+        RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
+      )'
     - julia -e 'using Pkg; Pkg.add("ITensors")'
     - julia -e 'using Pkg; Pkg.add("TensorCrossInterpolation")'
     - |
