@@ -50,7 +50,7 @@ Julia 1.9:
   except:
     changes:
       - "README.md"
-pages:
+mydebugjob:
   image: julia:1.6
   # stage: deploy
   script:
