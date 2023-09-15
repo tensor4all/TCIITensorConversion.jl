@@ -2,21 +2,18 @@ before_script:
   - which git || (apt-get update -qq && apt-get install --no-install-recommends -qqqy git)
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/" --add
+  - |
+      julia -e '
+      using Pkg
+      Pkg.Registry.add(
+        RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
+      )
+      Pkg.Registry.add(
+        RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
+      )'
 
-.add_julia_registry:
-  script:
-    - |
-        julia -e '
-        using Pkg
-        Pkg.Registry.add(
-          RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
-        )
-        Pkg.Registry.add(
-          RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
-        )'
 .script:
   script:
-    - !reference [.add_julia_registry, script]
     - |
       julia --project=@. -e '
         using Pkg
@@ -35,7 +32,6 @@ before_script:
         @printf "Test coverage %.2f%%\n" 100c / t'
 .doctest:
   script:
-    - !reference [.add_julia_registry, script]
     - |
       julia --project=docs -e '
         using Pkg
