@@ -1,7 +1,5 @@
-function evaluate_mps(
-    mps::Union{ITensors.MPS,ITensors.MPO},
-    indexspecs::Vararg{AbstractVector{<:Tuple{ITensors.Index,Int}}}
-)
+function evaluate_mps(mps::Union{ITensors.MPS,ITensors.MPO},
+    indexspecs::Vararg{AbstractVector{<:Tuple{ITensors.Index,Int}}})
     if isempty(indexspecs)
         error("Please specify at which indices you wish to evaluate the MPS.")
     elseif any(length.(indexspecs) .!= length(mps))
@@ -16,10 +14,8 @@ function evaluate_mps(
     return scalar(V)
 end
 
-function evaluate_mps(
-    mps::Union{ITensors.MPS,ITensors.MPO},
+function evaluate_mps(mps::Union{ITensors.MPS,ITensors.MPO},
     indices::AbstractVector{<:ITensors.Index},
-    indexvalues::AbstractVector{Int}
-)
+    indexvalues::AbstractVector{Int})
     return evaluate_mps(mps, collect(zip(indices, indexvalues)))
 end

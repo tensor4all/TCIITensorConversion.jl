@@ -1,7 +1,10 @@
 using TCIITensorConversion
 using Documenter
 
-DocMeta.setdocmeta!(TCIITensorConversion, :DocTestSetup, :(using TCIITensorConversion); recursive=true)
+DocMeta.setdocmeta!(TCIITensorConversion,
+    :DocTestSetup,
+    :(using TCIITensorConversion);
+    recursive=true)
 
 makedocs(;
     modules=[TCIITensorConversion],
@@ -12,9 +15,7 @@ makedocs(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://Ritter.Marc.gitlab.io/TCIITensorConversion.jl",
         edit_link="main",
-        assets=String[],
-    ),
+        assets=String[]),
     pages=[
-        "Home" => "index.md",
-    ],
-)
+        "Home" => "index.md"
+    ])

@@ -4,10 +4,10 @@
 
 Convert a tensor train to an ITensor MPS
 
- * `tt`            Tensor train
- * `siteindices`   Arrays of ITensor Index objects.
+  - `tt`            Tensor train
+  - `siteindices`   Arrays of ITensor Index objects.
 
- If `siteindices` is left empty, a default set of indices will be used.
+If `siteindices` is left empty, a default set of indices will be used.
 """
 function ITensors.MPS(tt::TCI.TensorTrain{T}; sites=nothing)::MPS where {T}
     N = length(tt)
@@ -31,7 +31,7 @@ function ITensors.MPS(tt::TCI.TensorTrain{T}; sites=nothing)::MPS where {T}
 end
 
 function ITensors.MPS(tci::TCI.AbstractTensorTrain{T}; sites=nothing)::MPS where {T}
-    return MPS(TCI.tensortrain(tci), sites=sites)
+    return MPS(TCI.tensortrain(tci); sites=sites)
 end
 
 function ITensors.MPO(tt::TCI.TensorTrain{T}; sites=nothing)::MPO where {T}
@@ -39,14 +39,10 @@ function ITensors.MPO(tt::TCI.TensorTrain{T}; sites=nothing)::MPO where {T}
     localdims = TCI.sitedims(tt)
 
     if sites === nothing
-        sites = [
-            [Index(legdim, "ell=$ell, n=$n") for (n, legdim) in enumerate(ld)]
-            for (ell, ld) in enumerate(localdims)
-        ]
-    elseif !all(all.(
-            localdimell .== dim.(siteell)
-            for (localdimell, siteell) in zip(localdims, sites)
-        ))
+        sites = [[Index(legdim, "ell=$ell, n=$n") for (n, legdim) in enumerate(ld)]
+                 for (ell, ld) in enumerate(localdims)]
+    elseif !all(all.(localdimell .== dim.(siteell)
+                     for (localdimell, siteell) in zip(localdims, sites)))
         error("ranks are not consistent with dimension of sites")
     end
 
@@ -61,9 +57,8 @@ function ITensors.MPO(tt::TCI.TensorTrain{T}; sites=nothing)::MPO where {T}
 end
 
 function ITensors.MPO(tci::TCI.AbstractTensorTrain{T}; sites=nothing)::MPO where {T}
-    return MPO(TCI.tensortrain(tci), sites=sites)
+    return MPO(TCI.tensortrain(tci); sites=sites)
 end
-
 
 """
     function TCI.TensorTrain(mps::ITensors.MPS)
@@ -75,15 +70,11 @@ function TCI.TensorTrain(mps::ITensors.MPS)
     sites = siteinds(mps)
     Tfirst = zeros(ComplexF64, 1, dim(sites[1]), dim(links[1]))
     Tfirst[1, :, :] = Array(mps[1], sites[1], links[1])
-    Tlast =  zeros(ComplexF64, dim(links[end]), dim(sites[end]), 1)
+    Tlast = zeros(ComplexF64, dim(links[end]), dim(sites[end]), 1)
     Tlast[:, :, 1] = Array(mps[end], links[end], sites[end])
-    return TCI.TensorTrain{ComplexF64,3}(
-        vcat(
-            [Tfirst],
-            [Array(mps[i], links[i-1], sites[i], links[i]) for i in 2:length(mps)-1],
-            [Tlast]
-        )
-    )
+    return TCI.TensorTrain{ComplexF64,3}(vcat([Tfirst],
+        [Array(mps[i], links[i - 1], sites[i], links[i]) for i in 2:(length(mps) - 1)],
+        [Tlast]))
 end
 
 """
@@ -91,7 +82,7 @@ end
 
 Convertes an ITensor MPO object into a TensorTrain.
 """
-function TCI.TensorTrain{V, N}(mpo::ITensors.MPO; sites=nothing) where {N, V}
+function TCI.TensorTrain{V,N}(mpo::ITensors.MPO; sites=nothing) where {N,V}
     links = linkinds(mpo)
     if sites === nothing
         sites = siteinds(mpo)
@@ -102,14 +93,13 @@ function TCI.TensorTrain{V, N}(mpo::ITensors.MPO; sites=nothing) where {N, V}
     Tfirst = zeros(ComplexF64, 1, dim.(sites[1])..., dim(links[1]))
     Tfirst[1, fill(Colon(), length(sites[1]) + 1)...] = Array(mpo[1], sites[1]..., links[1])
 
-    Tlast =  zeros(ComplexF64, dim(links[end]), dim.(sites[end])..., 1)
-    Tlast[fill(Colon(), length(sites[end]) + 1)..., 1] = Array(mpo[end], links[end], sites[end]...)
+    Tlast = zeros(ComplexF64, dim(links[end]), dim.(sites[end])..., 1)
+    Tlast[fill(Colon(), length(sites[end]) + 1)..., 1] = Array(mpo[end],
+        links[end],
+        sites[end]...)
 
-    return TCI.TensorTrain{V, N}(
-        vcat(
-            Array{V, N}[Tfirst],
-            Array{V, N}[Array(mpo[i], links[i-1], sites[i]..., links[i]) for i in 2:length(mpo)-1],
-            Array{V, N}[Tlast]
-        )
-    )
+    return TCI.TensorTrain{V,N}(vcat(Array{V,N}[Tfirst],
+        Array{V,N}[Array(mpo[i], links[i - 1], sites[i]..., links[i])
+                   for i in 2:(length(mpo) - 1)],
+        Array{V,N}[Tlast]))
 end
