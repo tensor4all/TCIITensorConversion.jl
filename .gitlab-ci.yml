@@ -35,6 +35,8 @@ Julia 1.9:
   extends:
     - .script
     - .coverage
+
+.doctest:
   script:
     - |
       julia --project=docs -e '
@@ -45,6 +47,10 @@ Julia 1.9:
         using TCIITensorConversion
         doctest(TCIITensorConversion)
         include("docs/make.jl")'
+doctest:
+  image: julia:1.6
+  extends:
+    - .doctest
     - mkdir -p public
     - mv docs/build public/dev
   artifacts:
