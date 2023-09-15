@@ -35,6 +35,7 @@ before_script:
         @printf "Test coverage %.2f%%\n" 100c / t'
 .doctest:
   script:
+    - !reference [.add_julia_registry, script]
     - |
       julia --project=docs -e '
         using Pkg
