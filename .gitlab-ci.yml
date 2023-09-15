@@ -1,22 +1,3 @@
-.add_julia_registry:
-  before_script:
-    - which git || (apt-get update -qq && apt-get install --no-install-recommends -qqqy git)
-    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
-    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/" --add
-  script:
-    - |
-      julia -e '
-      using Pkg
-      Pkg.Registry.add(
-        RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
-      )'
-    - |
-      julia -e '
-      using Pkg
-      Pkg.Registry.add(
-        RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
-      )'
-
 .script:
   before_script:
     - which git || (apt-get update -qq && apt-get install --no-install-recommends -qqqy git)
@@ -48,34 +29,36 @@
         c, t = get_summary(process_folder())
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
-.doctest:
-  script:
-    - |
-      julia --project=docs -e '
-        using Pkg
-        Pkg.develop(PackageSpec(path=pwd()))
-        Pkg.instantiate()
-        using Documenter: doctest
-        using Hello
-        doctest(Hello)
-        include("docs/make.jl")'
 Julia 1.9:
   image: julia:1.9
   extends:
     - .script
     - .coverage
-    - .doctest
-  except:
-    changes:
-      - "README.md"
 pages:
   image: julia:1.6
   stage: deploy
   before_script:
-    - !reference [.add_julia_registry, before_script]
+    - which git || (apt-get update -qq && apt-get install --no-install-recommends -qqqy git)
+    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
+    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/" --add
   script:
-    - !reference [.add_julia_registry, script]
-    - !reference [.doctest, script]
+    - |
+       julia -e '
+        using Pkg
+        Pkg.Registry.add(
+          RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
+        )
+        Pkg.Registry.add(
+          RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
+        )'
+    - |
+      julia --project=docs -e '
+        using Pkg
+        Pkg.instantiate()
+        using Documenter: doctest
+        using TCIITensorConversion
+        doctest(TCIITensorConversion)
+        include("docs/make.jl")'
     - mkdir -p public
     - mv docs/build public/dev
   artifacts:
