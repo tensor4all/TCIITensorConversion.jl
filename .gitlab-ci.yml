@@ -1,8 +1,9 @@
 .add_julia_registry:
-  script:
+  before_script:
     - which git || (apt-get update -qq && apt-get install --no-install-recommends -qqqy git)
     - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
     - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/" --add
+  script:
     - |
       julia -e '
       using Pkg
@@ -17,6 +18,8 @@
       )'
 
 .script:
+  before_script:
+    - !reference [.add_julia_registry, before_script]
   script:
     - !reference [.add_julia_registry, script]
     - julia -e 'using Pkg; Pkg.add("ITensors")'
@@ -60,6 +63,8 @@ Julia 1.9:
 pages:
   image: julia:1.6
   stage: deploy
+  before_script:
+    - !reference [.add_julia_registry, before_script]
   script:
     - !reference [.add_julia_registry, script]
     - !reference [.doctest, script]
