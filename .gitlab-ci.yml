@@ -16,6 +16,8 @@
 .script:
   script:
     - !reference [.add_julia_registry, script]
+    - julia -e 'using Pkg; Pkg.add("ITensors")'
+    - julia -e 'using Pkg; Pkg.add("TensorCrossInterpolation")'
     - |
       julia --project=@. -e '
         using Pkg
