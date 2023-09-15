@@ -30,7 +30,16 @@ before_script:
         c, t = get_summary(process_folder())
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
-.doctest:
+Julia 1.9:
+  image: julia:1.9
+  extends:
+    - .script
+    - .coverage
+  except:
+    changes:
+      - "README.md"
+
+doctest:
   script:
     - |
       julia --project=docs -e '
@@ -41,15 +50,7 @@ before_script:
         using TCIITensorConversion
         doctest(TCIITensorConversion)
         include("docs/make.jl")'
-Julia 1.9:
-  image: julia:1.9
-  extends:
-    - .script
-    - .coverage
-    - .doctest
-  except:
-    changes:
-      - "README.md"
+
 mydebugjob:
   image: julia:1.6
   # stage: deploy
