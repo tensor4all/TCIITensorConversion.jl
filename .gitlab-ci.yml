@@ -30,19 +30,11 @@ before_script:
         c, t = get_summary(process_folder())
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
-Julia 1.6:
-  image: julia:1.6
+Julia 1.9:
+  image: julia:1.9
   extends:
     - .script
     - .coverage
-Julia 1.7:
-  image: julia:1.7
-  extends:
-    - .script
-    - .coverage
-pages:
-  image: julia:1.6
-  stage: deploy
   script:
     - |
       julia --project=docs -e '
