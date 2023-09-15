@@ -55,17 +55,16 @@ doctest:
   extends:
     - .doctest
 
-mydebugjob:
+pages:
   image: julia:1.6
-  #stage: deploy
-  stage: test
+  stage: deploy
   extends:
     - .doctest
   after_script:
     - mkdir -p public
     - mv docs/build public/dev
-  #artifacts:
-  #  paths:
-  #     - public
-  #only:
-  #  - main
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
