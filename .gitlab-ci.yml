@@ -4,15 +4,16 @@ before_script:
   - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/" --add
 
 .add_julia_registry:
-  - |
-   julia -e '
-    using Pkg
-    Pkg.Registry.add(
-      RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
-    )
-    Pkg.Registry.add(
-      RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
-    )'
+  script:
+    - |
+      julia -e '
+      using Pkg
+      Pkg.Registry.add(
+        RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
+      )
+      Pkg.Registry.add(
+        RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
+      )'
 
 .script:
   extends:
@@ -42,7 +43,7 @@ Julia 1.9:
 pages:
   image: julia:1.6
   stage: deploy
-  extends: 
+  extends:
     - .add_julia_registry
   script:
     - |
