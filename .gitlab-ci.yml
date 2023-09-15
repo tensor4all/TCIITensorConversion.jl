@@ -17,7 +17,7 @@ before_script:
 .script:
   extends:
     - .add_julia_registry
-  scritp:
+  script:
     - |
       julia --project=@. -e '
         using Pkg
