@@ -16,10 +16,10 @@
         @test dim.(siteinds(mpo)[4]) == [9, 4]
 
         tt2 = TCI.TensorTrain{Float64, 4}(mpo)
-        @test all(tt2.T .== tt.T)
+        @test all(tt2[i] == tt[i] for i in 1:length(tt))
 
         sites = reverse.(siteinds(mpo))
         ttreverse = TCI.TensorTrain{Float64, 4}(mpo, sites=sites)
-        @test all(permutedims.(ttreverse.T, Ref([1, 3, 2, 4])) .== tt.T)
+        @test all(permutedims(ttreverse[i], [1, 3, 2, 4]) == tt[i] for i in 1:length(tt))
     end
 end

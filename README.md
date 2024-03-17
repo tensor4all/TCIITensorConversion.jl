@@ -1,8 +1,7 @@
 # TCIITensorConversion
-
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://Ritter.Marc.gitlab.io/TCIITensorConversion.jl/dev)
-[![Build Status](https://gitlab.com/Ritter.Marc/TCIITensorConversion.jl/badges/main/pipeline.svg)](https://gitlab.com/Ritter.Marc/TCIITensorConversion.jl/pipelines)
-[![Coverage](https://gitlab.com/Ritter.Marc/TCIITensorConversion.jl/badges/main/coverage.svg)](https://gitlab.com/Ritter.Marc/TCIITensorConversion.jl/commits/main)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tensors4fields.gitlab.io/tciitensorconversion.jl/dev/index.html)
+[![pipeline status](https://gitlab.com/tensors4fields/tciitensorconversion.jl/badges/main/pipeline.svg)](https://gitlab.com/tensors4fields/tciitensorconversion.jl/-/commits/main)
+[![coverage report](https://gitlab.com/tensors4fields/tciitensorconversion.jl/badges/main/coverage.svg)](https://gitlab.com/tensors4fields/tciitensorconversion.jl/-/commits/main)
 
 This package provides conversions between TensorTrain objects in `TensorCrossInterpolation.jl` and MPS/MPO objects in `ITensors.jl`.
 
@@ -56,9 +55,9 @@ mpo = ITensors.MPO(tt)
 @assert dim.(siteinds(mpo)[4]) == [9, 4]
 
 tt2 = TCI.TensorTrain{Float64, 4}(mpo)
-@assert all(tt2.T .== tt.T)
+@assert all(tt2[i] == tt[i] for i in 1:length(tt))
 
 sites = reverse.(siteinds(mpo))
 ttreverse = TCI.TensorTrain{Float64, 4}(mpo, sites=sites)
-@assert all(permutedims.(ttreverse.T, Ref([1, 3, 2, 4])) .== tt.T)
+@assert all(permutedims(ttreverse[i], [1, 3, 2, 4]) == tt[i] for i in 1:length(tt))
 ```

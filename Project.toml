@@ -1,13 +1,15 @@
 name = "TCIITensorConversion"
 uuid = "9f0aa9f4-9415-4e6a-8795-331ebf40aa04"
 authors = ["Ritter.Marc <Ritter.Marc@physik.uni-muenchen.de> and contributors"]
-version = "0.1.0"
+version = "0.1.2"
 
 [deps]
 ITensors = "9136182c-28ba-11e9-034c-db9fb085ebd5"
 TensorCrossInterpolation = "b261b2ec-6378-4871-b32e-9173bb050604"
 
 [compat]
+ITensors = "0.3"
+TensorCrossInterpolation = "0.8"
 julia = "1.6"
 
 [extras]

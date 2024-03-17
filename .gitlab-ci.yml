@@ -1,3 +1,16 @@
+before_script:
+  - which git || (apt-get update -qq && apt-get install --no-install-recommends -qqqy git)
+  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
+  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/" --add
+  - |
+      julia -e '
+      using Pkg
+      Pkg.Registry.add(
+        RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
+      )
+      Pkg.Registry.add(
+        RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
+      )'
 .script:
   script:
     - |
@@ -16,19 +29,17 @@
         c, t = get_summary(process_folder())
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
-Julia 1.6:
-  image: julia:1.6
+Julia test:
+  image: julia:${JULIA_VERSION}
   extends:
     - .script
     - .coverage
-Julia 1.7:
-  image: julia:1.7
-  extends:
-    - .script
-    - .coverage
-pages:
-  image: julia:1.6
-  stage: deploy
+  parallel:
+    matrix:
+      - JULIA_VERSION:
+        - "1.9"
+        - "1" # latest stable version
+.doctest:
   script:
     - |
       julia --project=docs -e '
@@ -39,6 +50,16 @@ pages:
         using TCIITensorConversion
         doctest(TCIITensorConversion)
         include("docs/make.jl")'
+doctest:
+  image: julia:1.6
+  extends:
+    - .doctest
+pages:
+  image: julia:1.6
+  stage: deploy
+  extends:
+    - .doctest
+  after_script:
     - mkdir -p public
     - mv docs/build public/dev
   artifacts:
@@ -46,3 +67,21 @@ pages:
       - public
   only:
     - main
+
+CompatHelper:
+  image: julia:1 # Set to the Julia version you want to use
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - |
+      julia --color=yes -e "
+        import Pkg;
+        name = \"CompatHelper\";
+        uuid = \"aa819f21-2bde-4658-8897-bab36330d9b7\";
+        version = \"3\";
+        Pkg.add(; name, uuid, version)"
+    - |
+      julia --color=yes -e "
+        import CompatHelper;
+        CompatHelper.main(;use_existing_registries=true)"
+
