@@ -1,19 +1,18 @@
-using QuanticsGrids
+using TCIITensorConversion
 using Documenter
 
-DocMeta.setdocmeta!(QuanticsGrids, :DocTestSetup, :(using QuanticsGrids); recursive=true)
+DocMeta.setdocmeta!(TCIITensorConversion, :DocTestSetup, :(using TCIITensorConversion); recursive=true)
 
 makedocs(;
-    modules=[QuanticsGrids],
+    modules=[TCIITensorConversion],
     authors="Ritter.Marc <Ritter.Marc@physik.uni-muenchen.de> and contributors",
-    sitename="QuanticsGrids.jl",
+    sitename="TCIITensorConversion.jl",
     format=Documenter.HTML(;
         canonical="https://github.com/tensor4all/TCIITensorConversion.jl",
         edit_link="main",
         assets=String[]),
     pages=[
         "Home" => "index.md",
-        "API Reference" => "apireference.md",
     ])
 
 deploydocs(;
