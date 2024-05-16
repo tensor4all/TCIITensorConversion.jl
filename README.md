@@ -1,8 +1,8 @@
 # TCIITensorConversion
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tensors4fields.gitlab.io/tciitensorconversion.jl/dev/index.html)
-[![pipeline status](https://gitlab.com/tensors4fields/tciitensorconversion.jl/badges/main/pipeline.svg)](https://gitlab.com/tensors4fields/tciitensorconversion.jl/-/commits/main)
-[![coverage report](https://gitlab.com/tensors4fields/tciitensorconversion.jl/badges/main/coverage.svg)](https://gitlab.com/tensors4fields/tciitensorconversion.jl/-/commits/main)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tensor4all.github.io/TCIITensorConversion.jl/dev)
+[![CI](https://github.com/tensor4all/TCIITensorConversion.jl
+/actions/workflows/CI.yml/badge.svg)](https://github.com/tensor4all/TCIITensorConversion.jl/actions/workflows/CI.yml)
 
 This package provides conversions between TensorTrain objects in `TensorCrossInterpolation.jl` and MPS/MPO objects in `ITensors.jl`.
 
