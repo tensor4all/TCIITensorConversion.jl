@@ -6,7 +6,7 @@
 This package provides conversions between TensorTrain objects in `TensorCrossInterpolation.jl` and MPS/MPO objects in `ITensors.jl`.
 
 ## Usage
-### From TCI2 to TT and ITensors.MPS
+### From TCI2 to TT and ITensorMPS.MPS
 We first construct a TCI2 object:
 ```julia
 import QuanticsGrids as QG
@@ -30,24 +30,24 @@ One can create a tensor train object from the TCI2 object, and then convert it t
 import TensorCrossInterpolation as TCI
 
 # Construct a TensorTrain object from the TensorCI2 object
-tt = TCI.TensorTrain(ci.tt)
+tt = TCI.TensorTrain(ci.tci)
 
-# Convert the TensorTrain object to an ITensor MPS object
+# Convert the TensorTrain object to an ITensorMPS MPS object
 using TCIITensorConversion
-using ITensors
+using ITensorMPS: MPS
 
-M = ITensors.MPS(tt)
+M = MPS(tt)
 ```
 
 ### TT to MPO conversion and back
 
 ```julia
-using ITensors
+using ITensorMPS: MPO, dim, siteinds
 import TensorCrossInterpolation as TCI
 using TCIITensorConversion
 
 tt = TCI.TensorTrain([rand(1, 4, 3, 4), rand(4, 2, 4, 2), rand(2, 5, 1, 7), rand(7, 9, 4, 1)])
-mpo = ITensors.MPO(tt)
+mpo = MPO(tt)
 @assert linkdims(mpo) == [4, 2, 7]
 @assert dim.(siteinds(mpo)[1]) == [4, 3]
 @assert dim.(siteinds(mpo)[2]) == [2, 4]
