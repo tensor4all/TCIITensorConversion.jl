@@ -1,7 +1,7 @@
 name = "TCIITensorConversion"
 uuid = "9f0aa9f4-9415-4e6a-8795-331ebf40aa04"
 authors = ["Ritter.Marc <Ritter.Marc@physik.uni-muenchen.de> and contributors"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 ITensorMPS = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
@@ -11,7 +11,7 @@ TensorCrossInterpolation = "b261b2ec-6378-4871-b32e-9173bb050604"
 
 [compat]
 ITensorMPS = "0.3.2"
-ITensors = "0.7"
+ITensors = "0.7, 0.8, 0.9"
 Reexport = "1.2.2"
 TensorCrossInterpolation = "0.8, 0.9"
 julia = "1.10"
